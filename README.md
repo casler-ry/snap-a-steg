@@ -1,8 +1,14 @@
 # Snap-A-Steg
 
-Snap-A-Steg is a standalone desktop application for secure steganography and encrypted messaging using image files. 
-Easily hide and reveal secret messages protected by passwords and unique encryption keys. 
-Designed with privacy and simplicity in mind, Snap-A-Steg supports secure communication through image steganography. Open source and cross-platform support planned.
+Snap-A-Steg gives users the ability to hide encrypted messages inside ordinary images so they can be shared without anyone knowing a message even exists.
+
+It is designed for situations where simply sending an encrypted message is suspicious such as under censorship, surveillance, or coercion. Even if an image is intercepted, an attacker cannot easily determine that it contains a message, and without both the encryption key and a user-generated password, recovering the contents of the message is computationally infeasible.
+
+This tool is intended for a variety of different users:
+- Journalists and their sources
+- Activists and organizers
+- People living under surveillance
+- Anyone who needs to move secrets without drawing attention to themselves or others
 ---
 ## Features
 
