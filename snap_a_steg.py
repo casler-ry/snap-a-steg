@@ -30,10 +30,11 @@ from kivy.clock import Clock
 from kivy.utils import get_color_from_hex
 import numpy as np
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from PIL import Image as PILImage
 from cryptography.fernet import InvalidToken
 import re
+import os
 
 import encode_decode as ed
 import ui_helpers as ui
@@ -148,16 +149,67 @@ class StegoUI(BoxLayout):
         root.withdraw()
         file_path = filedialog.asksaveasfilename(
             defaultextension=".png",
-            filetypes=[("PNG Image", "*.png"), ("JPEG Image", "*.jpg"), ("All Files", "*.*")],
-            title="Save Image As"
+            filetypes=[
+                ("Lossless Images (PNG, BMP, TIFF)", "*.png *.bmp *.tiff"),
+                ("PNG Image (recommended)", "*.png"),
+                ("BMP Image", "*.bmp"),
+                ("TIFF Image", "*.tiff"),
+                ("All Files (advanced / unsafe)", "*.*")
+            ],
+        title="Save Image As"
         )
+
         root.destroy()
-        if file_path:
-            try:
-                image_data.save(file_path)
-                print(f"Image saved to: {file_path}")
-            except Exception as e:
-                print(f"Error saving image: {e}")
+
+        if not file_path:
+            return  # User cancelled save dialog
+        
+        #If user forgot to type an extension, force PNG
+        if not os.path.splitext(file_path)[1]:
+            file_path += ".png"
+
+        ext = os.path.splitext(file_path)[1].lower()
+        
+        #Formats that will destroy stego data
+        lossy_formats = ['.jpg', '.jpeg', '.webp', '.heic']
+
+        if ext in lossy_formats:
+            proceed = messagebox.askyesno(
+                "Warning: Data Loss Possible",
+                "This image format uses lossy compression.\n\n"
+                "Saving in this format may corrupt or destroy the hidden message.\n\n"
+                "Are you sure you want to proceed?"
+                )
+            if not proceed:
+                return  # User chose not to proceed
+            
+        #Force pillor to use PNG for lossless formats
+        format_map = {
+            '.png': 'PNG',
+            '.bmp': 'BMP',
+            '.tiff': 'TIFF',
+            '.tif': 'TIFF',
+            '.jpg': 'JPEG',
+            '.jpeg': 'JPEG',
+            '.webp': 'WEBP',
+            '.heic': 'HEIC'
+        }
+
+        fmt = format_map.get(ext, 'PNG')  # Default to PNG if unknown
+
+        try:
+            image_data.save(file_path, format=fmt)
+            print(f"Image saved to: {file_path}")
+        except Exception as e:
+            messagebox.showerror("Error Saving Image", f"An error occurred while saving the image:\n{e}")
+        
+        
+        # if file_path:
+        #     try:
+        #         image_data.save(file_path)
+        #         print(f"Image saved to: {file_path}")
+        #     except Exception as e:
+        #         print(f"Error saving image: {e}")
 
     def on_encode(self, secret_input, password_input, status_text, btn_copy_key):
         popup = self.show_progress_popup()
