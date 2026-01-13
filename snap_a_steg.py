@@ -332,7 +332,8 @@ class StegoUI(BoxLayout):
             text=password,
             hint_text="Enter password",
             password=True,
-            size_hint_x=0.85
+            size_hint_x=0.85,
+            write_tab=False
         )
         btn_toggle_pwd = Button(
             text="View"
@@ -441,11 +442,13 @@ class StegoUI(BoxLayout):
             ,password=True
             ,size_hint_y=None
             ,height=40
+            ,write_tab=False
         )
         key_input = TextInput(
             hint_text="Enter encryption key"
             ,size_hint_y=None
             ,height=60
+            ,write_tab=False
         )
         status_text = TextInput(
             text=""
