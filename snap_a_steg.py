@@ -42,6 +42,24 @@ import ui_helpers as ui
 Window.size = (800, 600)
 Window.clearcolor = (.1, .1, .1, 1)  # Blackbackground
 
+class TabNavigationTextInput(TextInput):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # prevent default tab insertion
+        self.write_tab = False
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        if keycode[1] == 'tab':
+            # shift+tab -> previous, tab -> next
+            if 'shift' in modifiers:
+                if getattr(self, "focus_previous", None):
+                    self.focus_previous.focus = True
+            else:
+                if getattr(self, "focus_next", None):
+                    self.focus_next.focus = True
+            return True  # stop default Tab insertion
+        return super().keyboard_on_key_down(window, keycode, text, modifiers)
+
 
 class StegoUI(BoxLayout):
     def __init__(self, **kwargs):
@@ -311,7 +329,7 @@ class StegoUI(BoxLayout):
             ,padding=10
             ,spacing=10
         )
-        secret_input = TextInput(
+        secret_input = TabNavigationTextInput(
             hint_text="Enter secret message"
             ,multiline=True
             ,size_hint_y=.3
@@ -328,13 +346,18 @@ class StegoUI(BoxLayout):
             ,size_hint_y=None
             ,height=40
             ,spacing=5)
-        password_input = TextInput(
+        password_input = TabNavigationTextInput(
             text=password,
             hint_text="Enter password",
             password=True,
             size_hint_x=0.85,
             write_tab=False
         )
+
+        #Tab focus handler
+        secret_input.focus_next = password_input
+        password_input.focus_previous = secret_input
+
         btn_toggle_pwd = Button(
             text="View"
             ,size_hint_x=0.15
@@ -436,7 +459,7 @@ class StegoUI(BoxLayout):
             ,spacing=10
             ,padding=10
         )
-        password_input = TextInput(
+        password_input = TabNavigationTextInput(
             text=password
             ,hint_text="Enter password"
             ,password=True
@@ -444,7 +467,7 @@ class StegoUI(BoxLayout):
             ,height=40
             ,write_tab=False
         )
-        key_input = TextInput(
+        key_input = TabNavigationTextInput(
             hint_text="Enter encryption key"
             ,size_hint_y=None
             ,height=60
@@ -459,6 +482,11 @@ class StegoUI(BoxLayout):
             ,foreground_color=(1, 1, 1, 1)
             ,multiline=True
         )
+
+        #Tab focus handler
+        key_input.focus_previous = password_input
+        password_input.focus_next = key_input
+
         btn_decode = Button(
             text="Decode Secret"
             ,size_hint_y=None
